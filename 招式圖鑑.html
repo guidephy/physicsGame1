@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>物理擂台｜招式圖形預覽</title>
+<style>body{margin:0;background:#171723;color:#eee6fa;font-family:'Microsoft JhengHei',sans-serif;padding:24px}main{max-width:1050px;margin:auto}a{color:#dcfc8c}h1{font-size:26px}p{color:#bdb4cb;line-height:1.7}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}article{border:1px solid #4e435f;border-radius:12px;background:#252132;overflow:hidden}h2{font-size:16px;margin:16px}canvas{width:100%;display:block}small{display:block;padding:0 16px 16px;color:#bdb4cb}@media(max-width:600px){.grid{grid-template-columns:1fr}}</style>
+<main><a href="./index.html">← 返回遊戲</a><h1>六位物理傳奇・十二種招式</h1><p>以下使用遊戲內同一套繪圖程式，呈現招式發動時的定格示意。進入「練習教室」可觀看完整動畫。圖形是科學概念的遊戲化演出。</p><div class="grid" id="gallery"></div></main>
+<script src="./game/roster.js?v=12"></script><script src="./game/engine.js?v=12"></script><script src="./game/render.js?v=12"></script>
+<script>
+const {Renderer,FIGHTERS,FLOOR}=PhysicsArena;
+for(const f of FIGHTERS) for(const ultimate of [false,true]) {
+ const move=ultimate?f.ultimate:f.special,card=document.createElement('article');
+ const h=document.createElement('h2');h.textContent=`${f.name}｜${ultimate?'大絕招':'小絕招'}・${move.name}`;card.append(h);
+ const canvas=document.createElement('canvas');card.append(canvas);const note=document.createElement('small');note.textContent=move.description;card.append(note);document.querySelector('#gallery').append(card);
+ const r=new Renderer(canvas);canvas.width=480;canvas.height=230;r.reducedMotion=true;
+ const c=r.ctx;c.fillStyle='#1b1928';c.fillRect(0,0,480,230);c.save();c.translate(0,185-FLOOR);c.strokeStyle='#50445f';c.beginPath();c.moveTo(0,FLOOR);c.lineTo(480,FLOOR);c.stroke();
+ const theme=move.kind,zone=ultimate&&['gravity','photon','interference'].includes(theme)||theme==='coil';
+ const e={theme,kind:zone?'zone':theme==='gravity'?'drop':theme==='orbit'?'orbit':'bolt',x:240,y:FLOOR-75,age:1,delay:0,life:2,radius:zone?110:25,color:f.color,vx:1,ultimate};
+ if(theme==='coil'&&ultimate)for(const x of [115,240,365])r.effect({...e,x,radius:52},.6);
+ else if(theme==='interference'&&ultimate)for(const x of [80,240,400])r.effect({...e,x,radius:42},.6);
+ else if(theme==='energy'&&ultimate) ['#ff789b','#8de6ff','#a995ff','#e3b1ff'].forEach((color,i)=>r.effect({...e,x:115+i*85,y:FLOOR-65-i*12,color},.6));
+ else if(theme==='orbit'&&ultimate)for(let i=0;i<3;i++)r.effect({...e,x:135+i*105,y:FLOOR-55-i*35},.6);
+ else r.effect(e,.6);
+ c.restore();
+}
+</script></html>
